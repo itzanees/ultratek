@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center py-5">
+    <div class="card p-5 shadow-sm d-inline-block">
+        <h1 class="text-success display-4">✓</h1>
+        <h3>Department Created</h3>
+
+        <a href="{% url 'create_department' %}" class="btn btn-primary mt-3">Add Another Department</a>
+    </div>
+</div>
+{% endblock %}
