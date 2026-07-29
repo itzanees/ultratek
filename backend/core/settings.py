@@ -146,6 +146,7 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 WHATSAPP_API_TOKEN= os.environ.get('WHATSAPP_API_TOKEN')
 WHATSAPP_PHONE_NUMBER_ID= os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
