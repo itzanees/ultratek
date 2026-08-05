@@ -1,7 +1,7 @@
 {% load static %}
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#"><img class="logo" src="{% static 'images/logo.png' %}" alt=""></a>
+        <a class="navbar-brand" href="#"><img class="logo" src="{% static 'images/logo.png' %}" alt="Ultratek Logo"></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -18,6 +18,7 @@
                             <a class="dropdown-item" aria-current="page" href="{% url 'employees_home' %}">Employees</a>
                         </li>
                         <li><a class="dropdown-item" href="{% url 'create_employee' %}">New</a></li>
+                        <li><a class="dropdown-item" href="{% url 'import_employees' %}">Import</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -34,7 +35,7 @@
                             <a class="dropdown-item {% if request.url == 'attendance_home' %}active{% endif%}"
                                 aria-current="page" href="{% url 'attendance_home' %}">Attendance</a>
                         </li>
-                        <li><a class="dropdown-item" href="{% url 'create_employee' %}">Record Attendance</a></li>
+                        <li><a class="dropdown-item" href="{% url 'mark_attendance' %}">Record Attendance</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -47,9 +48,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'customers_home' %}">Customers</a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link" href="{% url 'branches_home' %}">Branches</a>
-                </li>
+                </li> -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                         aria-expanded="false">

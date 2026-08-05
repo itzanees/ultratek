@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<!-- Include Choices.js library engines via CDN -->
+<!-- <link rel="stylesheet" href="https://jsdelivr.net" /> -->
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="mb-0">Setup New Project Site</h5>
+            </div>
+            <div class="card-body bg-white p-4">
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {{ form|crispy }}
+
+                    <div class="d-flex justify-content-between pt-3">
+                        <a href="{% url 'projects_home' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">Create Project</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+
+<!-- <script src="https://jsdelivr.net"></script> -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Transform client selector dropdown into a dynamic text filter box
+        const clientSelect = document.getElementById('id_client');
+        if (clientSelect) {
+            new Choices(clientSelect, {
+                searchEnabled: true,
+                itemSelectText: ''
+            });
+        }
+
+        // 2. Transform the multiselect element into a tag collection system
+        const employeeSelect = document.getElementById('id_employees');
+        if (employeeSelect) {
+            new Choices(employeeSelect, {
+                removeItemButton: true,       // Lets users click 'x' to drop workers
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholder: true,
+                placeholderValue: 'Type employee names to add...'
+            });
+        }
+    });
+</script>
+{% endblock %}

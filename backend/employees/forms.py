@@ -15,7 +15,7 @@ class EmployeeForm(forms.ModelForm):
         model = EmployeeMaster
         # Specify fields you want to show on the public page form
         fields = [
-            'employee_id', 'first_name', 'last_name', 'email', 'phone_number', 'departments'
+            'first_name', 'last_name', 'email', 'phone_number', 'departments'
         ]
         
         # Add HTML date picker calendars to date fields
@@ -30,3 +30,10 @@ class EmployeeForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name not in ['passport_expiry_date', 'id_expiry_date']:
                 field.widget.attrs['class'] = 'form-control'
+
+
+class CSVImportForm(forms.Form):
+    csv_file = forms.FileField(
+        label="Select CSV File",
+        help_text="File must be in .csv format and match the required column header structure."
+    )

@@ -50,3 +50,134 @@
     font-variation-settings:
         "wdth" 100;
 }
+
+:root {
+    --bs-body-bg: #f4f6f9;
+    --sidebar-width: 260px;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bs-body-bg);
+}
+
+/* Sidebar styling */
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: #1e293b;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.sidebar .nav-link {
+    color: #94a3b8;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.375rem;
+    margin: 0.2rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 5rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    color: #ffffff;
+    background: #334155;
+}
+
+.main-content {
+    /* margin-left: var(--sidebar-width); */
+    /* padding: 1.5rem; */
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        /* margin-left: calc(-1 * var(--sidebar-width)); */
+    }
+
+    .sidebar.show {
+        margin-left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+}
+
+/* Status Badge Colors */
+.badge-working {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.badge-off {
+    background-color: #e2e3e5;
+    color: #41464b;
+    border: 1px solid #c4c8cb;
+}
+
+.badge-annual-leave {
+    background-color: #cff4fc;
+    color: #055160;
+    border: 1px solid #b6effb;
+}
+
+.badge-early-leave {
+    background-color: #fff3cd;
+    color: #664d03;
+    border: 1px solid #ffecb5;
+}
+
+.badge-unapplied-leave {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+.stat-card {
+    border: none;
+    border-radius: 0.75rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.85rem;
+}
+
+.table-responsive {
+    border-radius: 0.75rem;
+    background-color: #ffffff;
+}
+
+/* Custom scrollbar for clean aesthetics */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}

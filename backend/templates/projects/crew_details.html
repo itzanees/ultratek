@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <h1 class="modal-title fs-5" id="viewAssigneesLabel">
+        Crew Members
+    </h1>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body mx-auto py-5">
+
+    <div class="row">
+        {% for men in crew %}
+        <div class="col-sm-auto mb-3 mb-sm-0">
+            <div class="card">
+                <div class="card-body">
+                    <a href=""> {{ men.employee.first_name }} {{ men.employee.last_name }}</a>
+                    <p class="card-text">{{ men.role_at_site|default:"General Crew" }}</p>
+                    <p class="card-text">{{ men.assigned_date|date:"Y-m-d" }}</p>
+                    <a href="tel:{{ men.employee.phone_number }}" class="btn btn-primary">
+                        {{ men.employee.phone_number}}
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center text-muted py-5">
+                <p class="mb-1 fs-5">No employees currently assigned to this project.</p>
+                <small>Click edit or manage configurations to allocate workforce resources here.</small>
+            </td>
+        </tr>
+        {% endfor %}
+    </div>
+
+</div>

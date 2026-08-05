@@ -1,12 +1,14 @@
 from django.db import models
 from django.utils import timezone
+from employees.models import EmployeeMaster
 
 class Project(models.Model):
     project_code = models.CharField(max_length=20, unique=True, verbose_name="Project/Site Code")
     project_name = models.CharField(max_length=150, verbose_name="Site Name")
     location_city = models.CharField(max_length=50, verbose_name="City/Region")
+    
     client = models.ForeignKey(
-        'customers.Customer', # Point to the 'Customer' model in your customers app
+        'customers.Customer', 
         on_delete=models.PROTECT,  # Protect prevents accidental deletion of client if they have active projects
         related_name='projects',
         verbose_name="Assigned Client"
@@ -14,7 +16,7 @@ class Project(models.Model):
     
     # Establish link to Employee via the custom through table
     employees = models.ManyToManyField(
-        'employees.EmployeeMaster', # Update 'hr_app' to match your actual HR app directory name
+        EmployeeMaster,
         through='ProjectAssignment',
         related_name='assigned_projects'
     )

@@ -4,7 +4,148 @@
 Attendance
 {% endblock %}
 
-{% block content %}
-<h1>Attendance</h1>
+{% block styles %}
+{% endblock %}
 
+{% block content %}
+<div class="container-fluid mt-3">
+
+    <!-- Top Date Navigation Filter Control Row -->
+    <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+        <div>
+            <h4 class="mb-0 fw-bold text-dark">Attendance & Workforce Dashboard</h4>
+            <small class="text-muted">Tracking operations on: <strong class="text-primary">
+                    {{ target_date}}
+                </strong>
+            </small>
+        </div>
+        <form method="get" action="" class="d-flex align-items-center gap-2">
+            <input type="date" name="date" value="{{ target_date }}" class="form-control" onchange="this.form.submit()">
+            <a href="{% url 'mark_attendance' %}" class="btn btn-success text-nowrap">+ Log Attendance</a>
+        </form>
+    </div>
+
+    <!-- Analytics Summary Performance Cards Grid -->
+    <div class="row g-3 mb-4">
+        <!-- 1. Headcount Card -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-primary text-white h-100">
+                <div class="card-body py-4">
+                    <h6 class="text-uppercase opacity-75 small font-weight-bold">Total Workers Present</h6>
+                    <h2 class="display-5 fw-bold mb-0">{{ metrics.total_present }}</h2>
+                    <small class="opacity-50">Headcount active across sites</small>
+                </div>
+            </div>
+        </div>
+        <!-- 2. Overtime Hours Card -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-warning text-dark h-100">
+                <div class="card-body py-4">
+                    <h6 class="text-uppercase opacity-75 small font-weight-bold">Accumulated Overtime</h6>
+                    <h2 class="display-5 fw-bold mb-0">{{ metrics.total_ot_hours }} <span class="fs-4">Hrs</span></h2>
+                    <small class="opacity-75">Pending authorization logs</small>
+                </div>
+            </div>
+        </div>
+        <!-- 3. System Log Source Breakdowns -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-white text-dark h-100">
+                <div class="card-body py-4">
+                    <h6 class="text-uppercase text-secondary small font-weight-bold">API vs Manual Entries</h6>
+                    <h4 class="fw-bold mb-1 mt-2 text-success">💬 WhatsApp: {{ metrics.whatsapp_count }}</h4>
+                    <h4 class="fw-bold mb-0 text-secondary">💻 Dashboard: {{ metrics.manual_count }}</h4>
+                </div>
+            </div>
+        </div>
+        <!-- 4. Operational Alert Warnings -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 bg-dark text-white h-100">
+                <div class="card-body py-4">
+                    <h6 class="text-uppercase opacity-75 small font-weight-bold">Unreported Work Sites</h6>
+                    <h2 class="display-5 fw-bold text-danger mb-0">{{ metrics.unreported_sites }}</h2>
+                    <small class="opacity-50">Active projects with zero logs today</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Live Roster Monitoring Feed Card Container -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3">
+            <h5 class="mb-0 text-dark fw-bold">Live Workforce Deployment Logs</h5>
+        </div>
+        <div class="card-body bg-white p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-secondary text-uppercase small">
+                        <tr>
+                            <th class="ps-4">Employee</th>
+                            <th>Assigned Project Site</th>
+                            <th>Check-In Timestamp</th>
+                            <th>Check-Out Timestamp</th>
+                            <th>Standard Hours</th>
+                            <th>Overtime Hours</th>
+                            <th class="pe-4">Log Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold text-dark">{{ log.employee.first_name }} {{ log.employee.last_name
+                                    }}</div>
+                                <small class="text-muted">{{ log.employee.employee_id }}</small>
+                            </td>
+                            <td>
+                                <span class="fw-medium text-primary">{{ log.project_site.project_name }}</span>
+                                <span class="badge bg-light text-secondary border small d-block w-fit mt-1">{{
+                                    log.project_site.project_code }}</span>
+                            </td>
+                            <td class="small">{{ log.check_in|date:"H:i A" }}</td>
+                            <td class="small">
+                                {% if log.check_out %}
+                                {{ log.check_out|date:"H:i A" }}
+                                {% else %}
+                                <span class="text-warning font-italic">Active / On-Site</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-semibold">{{ log.regular_hours_worked }}</td>
+                            <td>
+                                {% if log.overtime_hours_worked > 0 %}
+                                <span class="text-danger fw-bold">+{{ log.overtime_hours_worked }} Hrs</span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4">
+                                {% if log.source == 'WHATSAPP' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2">💬
+                                    WhatsApp API</span>
+                                {% else %}
+                                <span
+                                    class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2">💻
+                                    Manual Form</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <p class="mb-1 fs-5">No workforce entry updates processed for this date window.</p>
+                                <small>Select a different date or log data above manually.</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
 {% endblock %}

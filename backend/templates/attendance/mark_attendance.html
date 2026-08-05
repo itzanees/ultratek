@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- <link rel="stylesheet" href="https://jsdelivr.net" /> -->
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3">
+                <h5 class="mb-0">Daily Site Attendance Board</h5>
+            </div>
+            <div class="card-body bg-white p-4">
+
+                <form method="post" action="">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="project-select" class="form-label fw-bold">Select Active Target Site</label>
+                            <select name="project_site" class="form-select" required id="project-select">
+                                <option value="">--- Choose Work Site ---</option>
+                                {% for site in sites %}
+                                <option value="{{ site.id }}">{{ site.project_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Log Target Date</label>
+                            <input type="date" name="attendance_date" value="{{ today }}" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Check Present Staff Members</label>
+                        <div id="employees-container">
+                            <p style="color: gray;">Please select a project first to view employees.</p>
+                        </div>
+                        <!-- <select name="present_employees" id="id_attendance_employees" class="form-control" multiple
+                            required>
+                            {% for emp in employees %}
+                            <option value="{{ emp.id }}">
+                                {{ emp.first_name }} {{ emp.last_name}} - {{ emp.employee_id }}
+                            </option>
+                            {% endfor %}
+                        </select> -->
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success px-5">Submit Site Attendance</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <script src="https://jsdelivr.net"></script> -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    $(document).ready(function () {
+        // Listen for changes on the Project Dropdown
+        $("#project-select").change(function () {
+            const projectId = $(this).val();
+            const container = $("#employees-container");
+
+            // If no project is selected, clear out the employee block
+            if (!projectId) {
+                container.html('<p style="color: gray;">Please select a project first to view employees.</p>');
+                return;
+            }
+
+            // Show a loading text while AJAX fetches data
+            container.html('\
+                            <div id="modal-dynamic-content"> \
+                                <div class="spinner-border border-primary" role="status"> \
+                                    <span class="visually-hidden">\
+                                        Loading...\
+                                    </span>\
+                                </div>\
+                            </div>');
+
+            $.ajax({
+                url: "{% url 'crew_list_ajax' %}",
+                data: { 'project_id': projectId },
+                dataType: 'json',
+
+                success: function (data) {
+                    // Empty the container to prepare for fresh data
+                    container.empty();
+                    // --- SECTION 1: Already Assigned Employees ---
+                    container.append('<div class="section-title fw-bold mt-2">Currently Assigned to Project:</div>');
+                    if (data.assigned.length === 0) {
+                        container.append('<p style="font-style: italic; color: #888;">No employees currently assigned.</p>');
+                    } else {
+                        $.each(data.assigned, function (index, emp) {
+                            container.append(`
+                                    <div class="employee-section">
+                                        <input type="checkbox" name="employees" value="${emp.id}" id="emp-${emp.id}" checked>
+                                        <label for="emp-${emp.id}">${emp.first_name} (Assigned)</label>
+                                    </div>
+                                `);
+                        });
+                    }
+                    // console.log(data);
+
+                    // --- SECTION 2: Available/Other Employees ---
+                    container.append('<div class="section-title fw-bold mt-2">Add Other Available Employees:</div>');
+                    if (data.available.length === 0) {
+                        container.append('<p style="font-style: italic; color: #888;">No other employees available.</p>');
+                    } else {
+                        $.each(data.available, function (index, emp) {
+                            container.append(`
+                                    <div class="employee-section">
+                                        <input type="checkbox" name="employees" value="${emp.id}" id="emp-${emp.id}">
+                                        <label for="emp-${emp.id}">${emp.first_name}</label>
+                                    </div>
+                                `);
+                        });
+                    }
+                },
+                error: function () {
+                    container.html('<p style="color: red;">Error loading employee list. Please try again.</p>');
+                }
+            });
+        });
+    });
+
+</script>
+{% endblock %}

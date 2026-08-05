@@ -6,15 +6,15 @@ class EmployeeMaster(models.Model):
     # --- 1. CORE IDENTIFICATION ---
     employee_id = models.CharField(max_length=20, unique=True, blank=True, verbose_name="Employee ID")
     first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.EmailField(unique=True)
+    last_name = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(unique=True, blank=True)
     
     # Saudi Phone Validator (+9665XXXXXXXX)
     saudi_phone_regex = RegexValidator(
         regex=r'^\+9665\d{8}$',
         message="Format must be: '+9665XXXXXXXX'"
     )
-    phone_number = models.CharField(validators=[saudi_phone_regex], max_length=13, unique=True)
+    phone_number = models.CharField(validators=[saudi_phone_regex], max_length=13, unique=True, blank=True)
     blood_group = models.CharField(max_length=5, blank=True, null=True, help_text="e.g., O+, A-")
 
     # Link to the departments application
@@ -84,7 +84,7 @@ class EmployeeMaster(models.Model):
         verbose_name_plural = "Employee Master Records"
 
     def __str__(self):
-        return f"{self.employee_id} - {self.first_name} {self.last_name}"
+        return f"{self.first_name} {self.last_name} - {self.employee_id}"
 
     # --- DYNAMIC CALCULATED FIELDS ---
     @property

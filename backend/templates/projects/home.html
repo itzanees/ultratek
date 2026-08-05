@@ -1,4 +1,5 @@
 {% extends '../base.html' %}
+{% load crispy_forms_tags %}
 
 {% block title %}
 Projects
@@ -6,6 +7,178 @@ Projects
 
 
 {% block content %}
-<h1>Projects</h1>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+        <h4 class="mb-0">Project & Job Sites</h4>
+        <a class="btn btn-light btn-sm text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#addProject">+ Open
+            New Site</a>
+    </div>
+
+    <div class="card-body bg-white">
+        <!-- Search Controls -->
+        <form method="get" action="" class="row g-2 mb-4">
+            <div class="col-md-9">
+                <input type="text" name="q" value="{{ query }}" class="form-control"
+                    placeholder="Search by site code, location city, or client company profile...">
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-dark">Search Registry</button>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle border">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Project Site Name</th>
+                        <th>Client / Owner</th>
+                        <th>Location City</th>
+                        <th>Deployment Crew</th>
+                        <th>Timeline Window</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in projects %}
+                    <tr>
+                        <td class="fw-bold text-dark">{{ project.project_code }}</td>
+                        <td>{{ project.project_name }}</td>
+                        <td class="text-secondary fw-medium">{{ project.client.company_name }}</td>
+                        <td>{{ project.location_city }}</td>
+                        <td>
+                            <!-- Count related active items inside assignments -->
+                            <a href="" data-bs-toggle="modal" data-bs-target="#viewAssignees"
+                                data-bs-id="{{ project.id }}">
+                                <span class="badge bg-info text-dark px-2">
+                                    {{ project.employees.count }} Employees Assigned
+                                </span>
+                            </a>
+                        </td>
+                        <td class="small">
+                            {{ project.start_date|date:"M Y" }} -
+                            {% if project.estimated_end_date %}
+                            {{ project.estimated_end_date|date:"M Y" }}
+                            {% else %}
+                            <span class="text-success font-italic">Ongoing</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if project.is_active %}
+                            <span class="badge bg-success">Active Site</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Closed</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No functional project listings found matching your search.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Project Modal -->
+<div class="modal fade modal-xl" id="addProject" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="addProjectLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addProjectLabel">Setup New Project Site</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="customerForm" novalidate>
+                <div class="modal-body">
+                    {% csrf_token %} <!-- Essential security token against CSRF threats -->
+                    {{ form|crispy }}
+                    <!-- <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-success px-4">Save Employee Record</button>
+                    </div> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Site</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- view Assignees Modal -->
+<div class="modal fade modal-lg" id="viewAssignees" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
+    aria-labelledby="viewAssigneestLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="modal-dynamic-content">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+
+<!-- <script src="https://jsdelivr.net"></script> -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 1. Transform client selector dropdown into a dynamic text filter box
+        const clientSelect = document.getElementById('id_client');
+        if (clientSelect) {
+            new Choices(clientSelect, {
+                searchEnabled: true,
+                itemSelectText: ''
+            });
+        }
+
+        // 2. Transform the multiselect element into a tag collection system
+        const employeeSelect = document.getElementById('id_employees');
+        if (employeeSelect) {
+            new Choices(employeeSelect, {
+                removeItemButton: true,       // Lets users click 'x' to drop workers
+                searchEnabled: true,
+                itemSelectText: '',
+                placeholder: true,
+                placeholderValue: 'Type employee names to add...'
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+    const detailModal = document.getElementById('viewAssignees');
+
+    detailModal.addEventListener('show.bs.modal', function (event) {
+        // Button/Link that triggered the modal
+        const button = event.relatedTarget;
+
+        // Extract info from data-bs-* attributes
+        const projectId = button.getAttribute('data-bs-id');
+
+        // Update the modal's content
+        // const modalIdSpan = detailModal.querySelector('#modal-item-id');
+        // modalIdSpan.textContent = customerId;
+
+        // Optional: Fetch data from Django backend using Fetch API
+        fetch(`/projects/${projectId}/`)
+            .then(response => response.text())
+            .then(html => {
+                detailModal.querySelector('#modal-dynamic-content').innerHTML = html;
+            });
+    });
+
+</script>
 
 {% endblock %}

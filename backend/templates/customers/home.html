@@ -5,6 +5,177 @@ Customers
 {% endblock %}
 
 {% block content %}
-<h1>Customers</h1>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+        <h4 class="mb-0">Customers</h4>
+        <!-- Button trigger for adding customer -->
+        <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addCustomer">
+            + Add New Customer
+        </button>
+    </div>
 
+    <div class="card-body bg-white">
+        <!-- Search bar component -->
+        <form method="get" action="" class="row g-2 mb-4">
+            <div class="col-md-9">
+                <input type="text" name="q" value="{{ query }}" class="form-control"
+                    placeholder="Search by ID, name, or email email...">
+            </div>
+            <div class="col-md-3 d-grid">
+                <button type="submit" class="btn btn-primary">Search Customer</button>
+            </div>
+        </form>
+
+        <!-- Main Data Table Layout -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle border">
+                <thead class="table-light">
+                    <tr>
+                        <th>Customer Code</th>
+                        <th>Company Name</th>
+                        <th>Contact Person</th>
+                        <th>Constact Email</th>
+                        <th>Address</th>
+                        <th class="text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td class="fw-bold text-secondary">{{ customer.customer_code }}</td>
+                        <td>
+                            <a class="link-success link-underline-opacity-0 fw-bold" href="" data-bs-toggle="modal"
+                                data-bs-target="#customerDetails" data-bs-id="{{ customer.id }}">
+                                {{ customer.company_name }}
+                            </a>
+                        </td>
+                        <td>{{ customer.contact_person }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.billing_address }}</td>
+                        <td
+                            class="text-center {% if customer.is_active %} text-success {% else %} text-danger {% endif %} fw-bold">
+                            {% if customer.is_active %}
+                            <span class="fs-5">●</span> Active
+                            {% else %}
+                            <span class="fs-5">●</span> Inactive
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            No customer directories in the system.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add customer Modal -->
+<div class="modal fade" id="addCustomer" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
+    aria-labelledby="addCustomerLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addCustomerLabel">Add Customer</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="customerForm" novalidate>
+                <div class="modal-body">
+                    {% csrf_token %} <!-- Essential security token against CSRF threats -->
+                    {{ form }}
+                    <!-- <div class="text-end mt-3">
+                        <button type="submit" class="btn btn-success px-4">Save Employee Record</button>
+                    </div> -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Customer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Customer details Modal -->
+<div class="modal fade" id="customerDetails" data-bs-backdrop="static" data-bs-keyboard="true" tabindex="-1"
+    aria-labelledby="customerDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="customerDetailsLabel">{{ customer.company_name }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- customer details -->
+            <div class="modal-body">
+                <!-- Content will be loaded here dynamically -->
+                <p><span id="modal-item-id"></span></p>
+                <div id="modal-dynamic-content">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    const detailModal = document.getElementById('customerDetails');
+
+    detailModal.addEventListener('show.bs.modal', function (event) {
+        // Button/Link that triggered the modal
+        const button = event.relatedTarget;
+
+        // Extract info from data-bs-* attributes
+        const customerId = button.getAttribute('data-bs-id');
+
+        // Update the modal's content
+        const modalIdSpan = detailModal.querySelector('#modal-item-id');
+        // modalIdSpan.textContent = customerId;
+
+        // Optional: Fetch data from Django backend using Fetch API
+        fetch(`/customers/${customerId}/`)
+            .then(response => response.text())
+            .then(html => {
+                detailModal.querySelector('#modal-dynamic-content').innerHTML = html;
+            });
+    });
+
+</script>
+
+
+<script>
+    document.getElementById('customerForm').addEventListener('submit', function (event) {
+        // 1. Get form input values
+        const customerName = document.getElementById('id_company_name').value.trim();
+        const customerEmail = document.getElementById('id_email').value.trim();
+        const customerPhone = document.getElementById('id_phone_number').value.trim();
+
+        // 2. Check if the critical data is missing
+        if (customerName === '' || customerEmail === '' || customerPhone === '') {
+            // 3. Stop the form from submitting
+            event.preventDefault();
+
+            // 4. Stop Bootstrap from doing any default actions
+            event.stopPropagation();
+
+            // 5. Warn the user
+            alert('Please fill out all required fields before submitting.');
+
+            return false;
+        }
+
+        // Optional: If you are using AJAX to submit, handle it here 
+        // and use bootstrap.Modal.getInstance('#yourModalId').hide() upon success.
+    });
+</script>
 {% endblock %}
